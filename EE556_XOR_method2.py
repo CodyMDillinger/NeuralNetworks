@@ -2,7 +2,7 @@
 #!/usr/bin/python
 # Cody Dillinger - EE556 - Homework 4 - MultiLayer Perceptron and Backpropagation for XOR Problem
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 ############################################################################
 def activation(x):
@@ -36,6 +36,7 @@ class MLP:
         learning = True
         iter = 0
         convergence_value = .00001       # squared error for when back propagation learning is "done"
+        costs = []
         while learning:
             sum1 = np.dot(inputs, self.w_input)
             layer1_out = activation(sum1)
@@ -44,9 +45,11 @@ class MLP:
             layer2_error = outputs - layer2_out
             #if iter == 0:
             #    print 'layer2 error first iteration', layer2_error
-            layer2_sq_error = np.array([[layer2_error[0][0]**2],[layer2_error[1][0]**2],[layer2_error[2][0]**2],[layer2_error[3][0]**2]])
+            #layer2_sq_error = np.array([[layer2_error[0][0]**2],[layer2_error[1][0]**2],[layer2_error[2][0]**2],[layer2_error[3][0]**2]])
+            mean_square = .25 * (layer2_error[0][0]**2 + layer2_error[1][0]**2 + layer2_error[2][0]**2 + layer2_error[3][0]**2)
+            costs.append(mean_square)
             if iter == 0:
-                print 'layer2 error first iteration, after squaring', layer2_sq_error
+                print 'layer2 mean square error first iteration', mean_square
             layer2_delta = layer2_error * activation_derivative(layer2_out)
             #if iter == 0:
             #    print 'delta calculated', layer2_delta
@@ -60,20 +63,27 @@ class MLP:
             self.w_hidden = self.w_hidden + alpha * np.dot(layer1_out.T, layer2_delta)
             self.w_input = self.w_input + alpha * np.dot(inputs.T, layer1_delta)
             iter += 1
-            if layer2_sq_error[0][0] < convergence_value and layer2_sq_error[1][0] < convergence_value and layer2_sq_error[2][0] < convergence_value and layer2_sq_error[3][0] < convergence_value:
+            if mean_square < convergence_value:
                 learning = False
         print 'w in', self.w_input
         print 'w hidden', self.w_hidden
+        return costs
 
 
 def main():
     inputs1 = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     outputs = np.array([[0], [1], [1], [0]])
     perceptron = MLP(inputs1)
-    perceptron.learn(inputs1, outputs, .3)    # train the parameters
+    costs = perceptron.learn(inputs1, outputs, 1)    # train the parameters
     inputs2 = np.array([[1, 1], [0, 0], [1, 0], [0, 1], [0, 0], [1, 1], [0, 1]])
     print 'prediction for inputs1', perceptron.predict(inputs1)
     print 'prediction for inputs2', perceptron.predict(inputs2)
-
+    #print 'costs', costs
+    plt.plot(costs)
+    plt.ylabel('Cost: Mean Square Error')
+    plt.title('Codys Cost Function (MSE) Plot for HW 4 XOR Problem')
+    plt.xlabel('Number of Batch Gradient Steps')
+    plt.show()
+    return
 
 main()
