@@ -18,7 +18,7 @@ def activation_derivative(x):
 class MLP:
     def __init__(self, inputs):
         self.inputs = inputs
-        self.length = len(self.inputs)
+        self.length = 5#len(self.inputs)
         self.length0 = len(self.inputs[0])
         self.w_input = np.random.random((self.length0, self.length))
         self.w_hidden = np.random.random((self.length, 1))
